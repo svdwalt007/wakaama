@@ -3,6 +3,14 @@
 Global contract in `~/.claude/CLAUDE.md` applies (QA/TDD/verification laws, skill
 routing, attribution rules).
 
+## Docker policy (standing, until further notice)
+- Do not start, stop, build, or otherwise manage Docker containers, images, or
+  compose stacks in this repo — OpenClaw manages all live Docker instances and
+  health. Applies to `docker run`, `docker compose up/down`, `docker build`, and
+  container restarts/kills.
+- Read-only inspection (`docker ps`, `docker logs`, `docker inspect`) is fine.
+- Standing until Sean lifts it explicitly.
+
 ## LEARNINGS process
 
 Cross-project engineering lessons live in `~/.claude/LEARNINGS.md` (global, applies to
