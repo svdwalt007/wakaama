@@ -1,0 +1,40 @@
+# Simple Wakaama DUT Client Dockerfile
+FROM ubuntu:24.04
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        cmake \
+        git \
+        pkg-config \
+        libmbedtls-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+COPY . .
+
+# Build only the NoSec variant
+RUN rm -rf build-dut && \
+    cmake -S . -B build-dut \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DWAKAAMA_MODE=client \
+    -DWAKAAMA_ENABLE_EXAMPLES=ON \
+    -DWAKAAMA_UNIT_TESTS=OFF && \
+    cmake --build build-dut --target lwm2mclient -j"$(nproc)" || \
+    cmake --build build-dut --target lwm2mclient_udp -j"$(nproc)" || \
+    (cd build-dut && make -j"$(nproc)" lwm2mclient) || \
+    (cd build-dut && make -j"$(nproc)")
+
+# Runtime
+FROM ubuntu:24.04
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libmbedtls14 \
+        curl && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY --from=0 /src/build-dut/lwm2mclient /app/lwm2mclient
+
+ENTRYPOINT ["/app/lwm2mclient"]
